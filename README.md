@@ -572,3 +572,40 @@ files.
 
 What a project chose does not belong here: that is the project's ADR. When a decision comes up, copy the
 practice into the project's `docs/`, adapt it, and let the ADR link to that copy.
+
+### Hooks
+
+`hooks/` holds scripts that Claude Code runs on events of a session. They are not part of the flow: they
+are personal tools for one machine, kept here so they have a history.
+
+| Hook                  | What it does                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `notify-when-away.sh` | plays a sound and shows a notification when a session needs you and you are not looking at it: it finished, it has a question, or it needs a permission. The notification names the project |
+
+To install or update them:
+
+```
+hooks/install.sh
+```
+
+It copies each hook to `~/.claude/hooks/`, and only if the script parses: a hook with a syntax error can
+block the session it runs in. Edit a hook here, never the installed copy.
+
+Which events run a hook is set once, in `~/.claude/settings.json`, so every project on the machine gets
+it. `install.sh` does not touch the settings; on a new machine add this under `"hooks"`:
+
+```json
+"Stop": [
+  { "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/notify-when-away.sh" }] }
+],
+"PreToolUse": [
+  { "matcher": "AskUserQuestion",
+    "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/notify-when-away.sh" }] }
+],
+"Notification": [
+  { "matcher": "permission_prompt",
+    "hooks": [{ "type": "command", "command": "$HOME/.claude/hooks/notify-when-away.sh" }] }
+]
+```
+
+`/hooks` in a session shows what is configured.
