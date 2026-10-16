@@ -10,8 +10,8 @@ description: >-
 
 # Data access against SQL
 
-Port shapes and naming are in CLAUDE.md — follow them; this skill is the rules that apply once a port is
-backed by a database. See `reference.md` for why each holds.
+Port shapes and naming are in the project's instructions — follow them; this skill is the rules that
+apply once a port is backed by a database. See `reference.md` for why each holds.
 
 ## Transactions
 

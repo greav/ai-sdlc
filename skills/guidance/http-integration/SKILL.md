@@ -10,8 +10,8 @@ description: >-
 
 # Data access against a remote API
 
-Port shapes and naming are in CLAUDE.md — follow them; this skill is the rules that apply once a port is
-backed by a network call. See `reference.md` for why each holds.
+Port shapes and naming are in the project's instructions — follow them; this skill is the rules that
+apply once a port is backed by a network call. See `reference.md` for why each holds.
 
 ## Choosing the port
 

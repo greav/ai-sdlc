@@ -1,7 +1,3 @@
-# <project>
-
-<One or two sentences: what this is and who uses it.>
-
 ## Architecture principles
 
 - **Dependency inversion.** The application layer defines protocols; the infrastructure layer implements
@@ -64,21 +60,3 @@ Rules that follow from the table:
 
 Raise exceptions declared in the application layer, named for what went wrong in business terms. Adapters
 translate transport failures into them. An interactor should never catch a library exception.
-
-## Guidance skills
-
-Invoke the matching skill before writing or changing such code. The reviewer checks the same rules through
-`CODING_STANDARDS.md`.
-
-- Code that reads or writes the database → `sql-persistence`
-- Code that calls a remote API → `http-integration`
-
-\<Drop the lines for skills this project does not use.>
-
-## Configuration
-
-\<Project-specific: where configuration lives, how it reaches each class.>
-
-## Testing
-
-\<Project-specific: what runs, what is required before a change is considered done.>
