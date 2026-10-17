@@ -12,7 +12,7 @@ The flow runs on [mattpocock/skills](https://github.com/mattpocock/skills) and a
 | ---------------------------------------------------- | ---------------------- |
 | setting a project up with a checked set of skills    | `/setup-ai-sdlc`       |
 | tracking progress from session to session            | `PLAN.md`              |
-| keeping work found during a feature for later        | `.scratch/backlog/`    |
+| keeping work and ideas for later                     | `.scratch/backlog/`    |
 | making the reviewer check the project's rules        | `CODING_STANDARDS.md`  |
 | finishing a feature                                  | `/ship` and `/cleanup` |
 | knowing which command and prompt come next           | `/what-next`           |
@@ -327,7 +327,7 @@ a test, or when `/retro` keeps pointing at the same part of the code.
 ### 9. Work for later
 
 An idea, a bug or a task that comes up during a feature but is not in its plan goes to the backlog, not
-into the current branch.
+into the current branch. So does an idea of your own that you are not taking on yet.
 
 ```
 .scratch/backlog/BACKLOG.md    the list, in your order: the top row is the next to take on
@@ -336,6 +336,8 @@ into the current branch.
 
 - **Adding an item.** Say "put it in the backlog". The agent also offers it itself when it finds such work:
   `CLAUDE.md` tells it to.
+- **Adding an idea of your own.** Say "put it in the backlog: <the idea>". An idea not thought through
+  yet needs only its title and what you want; `/grill-with-docs` settles the rest when you take it on.
 - **Choosing what is next.** Move the rows of `BACKLOG.md`, by hand or by asking the agent.
 - **Taking an item on.** Start its route from the file, for example
   `/grill-with-docs @.scratch/backlog/<slug>.md`. When you ask the agent to create the branch, ask it to

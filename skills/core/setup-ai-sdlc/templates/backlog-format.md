@@ -19,6 +19,10 @@ cut from it. Write it so a session that never saw the work it came from can act 
 - [ ] Acceptance criterion
 ```
 
+The user's own idea, not yet thought through, needs only the title, **What:** — what they want and why,
+in their words — and **From:** `idea, <date>`. Leave out **Blocked by:** and the criteria rather than
+guess them: the interview that takes the idea on settles them.
+
 The index lists every item, in the user's order of priority: the top row is the next to take on. The first
 item added creates it:
 
