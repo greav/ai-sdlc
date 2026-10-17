@@ -15,6 +15,7 @@ The flow runs on [mattpocock/skills](https://github.com/mattpocock/skills) and a
 | keeping work found during a feature for later        | `.scratch/backlog/`    |
 | making the reviewer check the project's rules        | `CODING_STANDARDS.md`  |
 | finishing a feature                                  | `/ship` and `/cleanup` |
+| knowing which command and prompt come next           | `/what-next`           |
 
 Checked against mattpocock/skills as of 2026-10-10 (1.3.1 plus the changes queued after it). `/setup-ai-sdlc`
 installs exactly that version.
@@ -303,8 +304,11 @@ a test, or when `/retro` keeps pointing at the same part of the code.
 - **The interview updates `GLOSSARY.md`.** A candidate you reject for a lasting reason can become an ADR,
   so the next run does not suggest it again.
 
-### 8. Five habits
+### 8. Six habits
 
+- **Not sure what comes next? Type `/what-next`**, or ask "what next?". It reads the session, the branch and
+  `.scratch/`, and answers with the command and prompt to type and whether to start a new session first.
+  It runs nothing itself.
 - **A new session lacks something? Put it in a file.** Add it to the Notes in `PLAN.md`, to the glossary
   or to an ADR. Do not paste the old chat.
 - **Start a new session early** when the agent forgets something already agreed, when you correct it
@@ -412,7 +416,7 @@ From this repository:
 
 | Skills                                | When                                                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------- |
-| `ship`, `cleanup`                     | always                                                                       |
+| `ship`, `cleanup`, `what-next`        | always                                                                       |
 | `sql-persistence`, `http-integration` | only in a project built as ports and adapters, and only the ones its code needs |
 
 ### What it writes into the project
@@ -586,9 +590,12 @@ Each skill is a directory:
 
 Skills come in two kinds, one folder each, split the way mattpocock/skills splits them:
 
-- **Core skills** (`skills/core/`) are steps of the flow itself — `setup-ai-sdlc`, `ship`, `cleanup`. Each is a workflow
-  the user starts; they carry `disable-model-invocation: true`, so only typing them runs them. Every
-  project using the flow gets `ship` and `cleanup`; `setup-ai-sdlc` is installed once per machine.
+- **Core skills** (`skills/core/`) are steps of the flow itself — `setup-ai-sdlc`, `ship`, `cleanup`,
+  `what-next`. Each is a workflow the user starts; they carry `disable-model-invocation: true`, so only
+  typing them runs them. `what-next` is the exception: it only answers, so it also fires on "what next?".
+  Every project using the flow gets `ship`, `cleanup` and `what-next`; `setup-ai-sdlc` is installed once
+  per machine. `what-next` holds a copy of the flow as tables of "state → command": when a route, a
+  stage or a prompt changes in this README, change it in `skills/core/what-next/SKILL.md` too.
 - **Guidance skills** (`skills/guidance/`) are rules for a kind of code — `sql-persistence`,
   `http-integration`. The agent loads them itself when the code fits; they hold no workflow, because the
   code they govern is written inside `/implement`'s. A project gets the ones its code needs. Both assume

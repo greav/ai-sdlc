@@ -34,7 +34,7 @@ domain-modeling  tdd  codebase-design  research  prototype  pr  writing-for-agen
 
 **From ai-sdlc (`greav/ai-sdlc`):**
 
-- `ship`, `cleanup` — always.
+- `ship`, `cleanup`, `what-next` — always.
 - `sql-persistence` — only in a project built as ports and adapters whose code talks to a database.
 - `http-integration` — only in a project built as ports and adapters whose code calls a remote API.
 
