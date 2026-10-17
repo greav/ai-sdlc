@@ -30,15 +30,17 @@ files, not from the previous chat.** A long session makes the agent worse; files
 
 ### 1. Choose a route
 
-| The task is…                                                          | Route         | What you do                                                                   |
-| --------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------------- |
-| a small fix: you can say what should happen in one sentence           | **Just ask**  | ask the agent; no skills, no files                                            |
-| one piece of work with a design choice in it (a new table, a new API) | **Short**     | `/grill-with-docs` and `/implement` in one session, then a review and `/ship` |
-| several pieces, each testable on its own                              | **Full**      | the five stages below                                                         |
-| an idea `/grill-with-docs` could not settle in one session            | **Wayfinder** | `/wayfinder` first, then the Full route                                       |
+| The task is…                                                          | Route            | What you do                                                                   |
+| --------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------- |
+| a small fix: you can say what should happen in one sentence           | **Just ask**     | ask the agent; no skills, no files                                            |
+| one piece of work with a design choice in it (a new table, a new API) | **Short**        | `/grill-with-docs` and `/implement` in one session, then a review and `/ship` |
+| several pieces, each testable on its own                              | **Full**         | the five stages below                                                         |
+| an idea `/grill-with-docs` could not settle in one session            | **Wayfinder**    | `/wayfinder` first, then the Full route                                       |
+| a bug you cannot explain: something breaks, fails or is slow          | **Bug**          | `/diagnosing-bugs` on a branch, then a review and `/ship`                     |
+| code that works but is hard to change                                 | **Architecture** | `/improve-codebase-architecture`, then the Short or the Full route            |
 
-**Anything bigger than a small fix starts with `/grill-with-docs`.** What happens in the interview picks
-the route:
+**Any other task bigger than a small fix starts with `/grill-with-docs`.** What happens in the interview
+picks the route:
 
 - The task is one piece of work → run `/implement`. This is the Short route.
 - The task is several pieces → run `/to-spec`. This is the Full route.
@@ -100,6 +102,8 @@ PLAN.md              which pieces are done and which is next — updated after e
 - Each session commits its ticket to the branch.
 - If a session went badly — the agent searched for a long time or lacked information — run `/retro`
   in it before `/clear`.
+- If a test fails and the agent cannot say why after a try or two, type `/diagnosing-bugs` in the same
+  session. It stops guessing and finds the cause first.
 
 **Building every ticket in one run.** For work that is large but not critical, one session can build the
 whole plan instead of you starting a session per ticket:
@@ -262,7 +266,42 @@ The map and the feature share one folder. Stage 1 adds the spec, the build ticke
 - **Save a prototype before `/cleanup`.** It sits in `prototypes/`, which git ignores, and goes with the
   folder. Commit it to a branch if you want to keep it.
 
-### 6. Four habits
+### 6. The Bug route
+
+1. Ask the agent to create a branch `fix/<slug>`.
+1. `/diagnosing-bugs <what you did, what you expected, what happened>`
+1. In a new session: `/code-review <default-branch>`, then ask the agent to fix what it found. Skip this
+   for a trivial fix.
+1. `/ship`, merge the PR, `/cleanup`. Without a `.scratch/` folder they skip the plan's steps.
+
+- **First it builds a command that shows the bug**: a test or a script that fails on it. It does not
+  guess at the cause before that command fails. If it cannot build one, it stops and asks for what it
+  needs: access to where the bug happens, a log, a recording. Give it that.
+- **It shows three to five guesses before testing them.** Cross out the ones you know are wrong. If you
+  are away, it goes on with its own order.
+- **The fix comes with a test that fails without it.** Check that the commit message names the cause.
+- **If the fix changes what the product does**, stop and start the Short route with `/grill-with-docs`:
+  that is a decision, not a fix.
+- **If it reports that no test can reach the bug where it happens**, the design is in the way. Run
+  `/improve-codebase-architecture` on that area later.
+
+### 7. Improving the architecture
+
+Run it between features, not inside one: every few features, when `/diagnosing-bugs` found no place for
+a test, or when `/retro` keeps pointing at the same part of the code.
+
+1. `/improve-codebase-architecture <the area, if you know it>`
+1. Read the report it opens in the browser, pick one candidate, and answer its interview.
+1. Continue in the same session as after `/grill-with-docs`: ask for a branch `refactor/<slug>` and run
+   `/implement` for one piece of work, or `/to-spec` for several.
+
+- **Without an area, it looks at the code that changed most** in the recent commits.
+- **The report is written to the temp folder**, not to the project. Each candidate has the files, the
+  problem, the change, a before and after diagram and how strongly it recommends it.
+- **The interview updates `GLOSSARY.md`.** A candidate you reject for a lasting reason can become an ADR,
+  so the next run does not suggest it again.
+
+### 8. Five habits
 
 - **A new session lacks something? Put it in a file.** Add it to the Notes in `PLAN.md`, to the glossary
   or to an ADR. Do not paste the old chat.
@@ -275,8 +314,11 @@ The map and the feature share one folder. Stage 1 adds the spec, the build ticke
   second session for a side problem found mid-ticket, to a `/wayfinder` session when an interview outgrew
   its own, or to the next feature. Stages already hand over through files. It writes its file to the temp
   folder, so move it into `.scratch/` if the next session does not start right away.
+- **An answer you cannot follow? Type `/wait-what`.** The agent says it again in simple words, with
+  context and the glossary's terms. Do it before you answer a question you did not understand: an answer
+  given on a guess becomes a decision.
 
-### 7. What lives where, and for how long
+### 9. What lives where, and for how long
 
 | Lives as long as | Files                                                                          | Where                              |
 | ---------------- | ------------------------------------------------------------------------------ | ---------------------------------- |
@@ -300,31 +342,33 @@ Four steps, once per project.
 npx skills@latest add mattpocock/skills
 ```
 
-Install into the project, not globally. The installer asks which skills to take; pick these seventeen:
+Install into the project, not globally. The installer asks which skills to take; pick these:
 
-| Skill                      | Who runs it             | What it is for                                              |
-| -------------------------- | ----------------------- | ----------------------------------------------------------- |
-| `setup-matt-pocock-skills` | you, once               | configures the project for the other skills (step 3)        |
-| `wayfinder`                | you, before Shape       | plans work too big for one session as a map of questions    |
-| `grill-with-docs`          | you, in Shape           | the interview that settles what to build                    |
-| `to-spec`                  | you, in Shape           | writes `spec.md` from the interview or from the map         |
-| `to-tickets`               | you, in Shape           | cuts the spec into tickets                                  |
-| `implement`                | you, in Build           | writes the code for one ticket                              |
-| `code-review`              | you, in Review          | checks the branch against the spec and the coding standards |
-| `retro`                    | you, after a bad run    | proposes checks and rules so a mistake is caught next time  |
-| `handoff`                  | you, when work moves    | writes the conversation into a file for another session     |
-| `grilling`                 | another skill           | the interview itself; `grill-with-docs` calls it            |
-| `domain-modeling`          | another skill           | writes `GLOSSARY.md` and ADRs; `grill-with-docs` calls it   |
-| `tdd`                      | another skill           | test first, then code; `implement` calls it                 |
-| `codebase-design`          | another skill           | module-design vocabulary; `tdd` calls it                    |
-| `research`                 | you, or `wayfinder`     | answers a question that needs reading the sources           |
-| `prototype`                | you, or `wayfinder`     | answers a question only running code can                    |
-| `pr`                       | another skill           | shapes the PR description when `/ship` opens the PR         |
-| `writing-for-agents`       | another skill           | writing style for agent instructions; `retro` calls it      |
+| Skill                           | Who runs it           | What it is for                                              |
+| ------------------------------- | --------------------- | ----------------------------------------------------------- |
+| `setup-matt-pocock-skills`      | you, once             | configures the project for the other skills (step 3)        |
+| `wayfinder`                     | you, before Shape     | plans work too big for one session as a map of questions    |
+| `grill-with-docs`               | you, in Shape         | the interview that settles what to build                    |
+| `to-spec`                       | you, in Shape         | writes `spec.md` from the interview or from the map         |
+| `to-tickets`                    | you, in Shape         | cuts the spec into tickets                                  |
+| `implement`                     | you, in Build         | writes the code for one ticket                              |
+| `implement-spec`                | you, in Build         | builds every ticket of a plan in one run                    |
+| `code-review`                   | you, in Review        | checks the branch against the spec and the coding standards |
+| `diagnosing-bugs`               | you, for a bug        | finds the cause of a bug before fixing it                   |
+| `improve-codebase-architecture` | you, between features | finds where the code is hard to change, then interviews you |
+| `retro`                         | you, after a bad run  | proposes checks and rules so a mistake is caught next time  |
+| `handoff`                       | you, when work moves  | writes the conversation into a file for another session     |
+| `wait-what`                     | you, any time         | makes the agent say its last message again, simply          |
+| `grilling`                      | another skill         | the interview itself; `grill-with-docs` calls it            |
+| `domain-modeling`               | another skill         | writes `GLOSSARY.md` and ADRs; `grill-with-docs` calls it   |
+| `tdd`                           | another skill         | test first, then code; `implement` calls it                 |
+| `codebase-design`               | another skill         | module-design vocabulary; `tdd` calls it                    |
+| `research`                      | you, or `wayfinder`   | answers a question that needs reading the sources           |
+| `prototype`                     | you, or `wayfinder`   | answers a question only running code can                    |
+| `pr`                            | another skill         | shapes the PR description when `/ship` opens the PR         |
+| `writing-for-agents`            | another skill         | writing style for agent instructions; `retro` calls it      |
 
-Do not skip the last eight: the skills you type do nothing without them.
-
-One more is optional: `implement-spec`, to build every ticket of a plan in one run.
+Do not skip the ones another skill calls: the skills you type do nothing without them.
 
 ### Step 2. Install the skills from this repository
 
@@ -385,7 +429,7 @@ CLAUDE.md or AGENTS.md           rules for writing code, plus the Agent skills b
 CODING_STANDARDS.md              pointers for the reviewer
 .gitignore                       contains .scratch/
 skills-lock.json                 written by the installer: which skills are installed, and from where
-.claude/skills/                  seventeen from mattpocock/skills, three from here, your guidance skills
+.claude/skills/                  the skills from mattpocock/skills and from here, your guidance skills
 docs/agents/issue-tracker.md     how tickets are tracked, with the PLAN.md format at the end
 docs/agents/domain.md            how the skills use the glossary and ADRs
 ```
