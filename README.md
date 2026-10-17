@@ -386,6 +386,10 @@ itself.
    `docs/agents/` and adds an `## Agent skills` block to the project's instructions: `CLAUDE.md`, or
    `AGENTS.md` when `CLAUDE.md` only imports it.
 1. `/setup-ai-sdlc` again. It shows what it would write into the project and writes after you confirm.
+1. In a new project with no code yet, start with
+   `/grill-with-docs <what the project is for, who uses it, what its first version must do>`. The
+   interview records the stack and the architecture as ADRs. When the stack is still open and needs
+   comparing, run `/research <which stack fits …>` first.
 
 ### The skills it installs
 

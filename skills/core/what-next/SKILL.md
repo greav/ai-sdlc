@@ -23,7 +23,8 @@ and many steps must start in a new session, which only the user can open.
   status, the `Branch:` line, and Notes marked `Open:`. In `map.md`: whether questions are still open.
 - **Git.** Uncommitted changes, commits ahead of the default branch, and the branch's PR on the hosting
   service: none, open or merged.
-- **The project.** `docs/agents/issue-tracker.md` missing means the flow is not set up. The top row of
+- **The project.** `docs/agents/issue-tracker.md` missing means the flow is not set up. Whether there is
+  any product code yet, beyond the files the setup wrote. The top row of
   `.scratch/backlog/BACKLOG.md`, if there is one, is the next piece of work the user picked.
 
 ## 2. Decide
@@ -34,6 +35,7 @@ Take the first row that fits. What happened in this conversation outranks the fi
 
 | What just happened                                                  | Next                                                                                                    |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `/setup-ai-sdlc` finished                                           | what its last message names: a restart with `claude -c`, `/setup-matt-pocock-skills`, `/setup-ai-sdlc` again. Once it has written the project files: the row for a project with no code yet, or the route table |
 | `/grill-with-docs` settled one piece of work                        | Short route, same session: `Create the branch <type>/<slug>`, then `/implement`                          |
 | `/grill-with-docs` settled several pieces, each testable on its own | Full route, same session: `/to-spec`                                                                    |
 | the interview outgrew the session, or kept needing a prototype      | `/handoff the next session charts a /wayfinder map`, move the file into `.scratch/`, `/clear`, then `/wayfinder @.scratch/<file>` |
@@ -51,7 +53,8 @@ Take the first row that fits. What happened in this conversation outranks the fi
 
 | What the files show                                           | Next                                                                                       |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| no `docs/agents/issue-tracker.md`                             | `/setup-ai-sdlc`                                                                           |
+| no `docs/agents/issue-tracker.md`                             | `/setup-ai-sdlc`; if the flow's skills are installed already, `/setup-matt-pocock-skills` (choose **Local markdown**), then `/setup-ai-sdlc` again |
+| no product code yet: only what the setup wrote                | `/grill-with-docs <what the project is for, who uses it, what its first version must do>`; when the stack is still open and needs comparing, `/research <which stack fits …>` first |
 | default branch, nothing in progress                           | the top backlog item, `/grill-with-docs @.scratch/backlog/<slug>.md`, or the route table below |
 | a map with open questions                                     | `/wayfinder @.scratch/<slug>/map.md`                                                        |
 | a map with no open question and no spec                       | `/to-spec @.scratch/<slug>/map.md`                                                          |

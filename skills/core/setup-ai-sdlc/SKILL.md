@@ -140,24 +140,29 @@ Read what is there; assume nothing.
 
 ## 2. Propose
 
-Say what you found, then list each change you would make: the skills to install, the project copy of
-`setup-ai-sdlc` to remove, and — when Matt's setup has run — the text you would write into each file.
-One list, one confirmation. If nothing is missing or out of date, say so and stop.
+First ask what step 1 left open, and only that. The list of changes depends on the answers.
 
-Show each section that differs from its template as a diff, one per section, and let the user accept
-each one separately. Say that you cannot tell which side changed: a line may be the user's own edit, and
-taking the template's text would undo it.
-
-Ask, in the same message, only what step 1 left open:
-
-- Is the flow shared or personal? Say what personal means: nothing of the flow is committed, the glossary
-  and ADRs included, and on another machine the setup has to run again.
+- Is the flow shared or personal? Personal means: nothing of the flow is committed, the glossary and
+  ADRs included, and on another machine the setup has to run again.
 - Is this a Python project? An empty project cannot show it.
 - Is it built as ports and adapters? Ask when `CLAUDE.md` is to be created from the template and the
   project is Python, or when it decides whether to install a guidance skill.
 - Which guidance skills to install, when the code does not show whether it talks to a database or calls
   a remote API. Ask only on the run that first installs the flow's skills: on a later run, propose a
   guidance skill only when the code shows the need or the user asks for it.
+
+Ask them with `AskUserQuestion`, all in one call: one option per answer, each with a line on what it
+leads to, and several answers allowed for the guidance skills. Mark an option `(Recommended)`, and put
+it first, only when something in the project supports it — say what in its line. With nothing to go
+on, recommend nothing.
+
+Then say what you found, and list each change you would make: the skills to install, the project copy
+of `setup-ai-sdlc` to remove, and — when Matt's setup has run — the text you would write into each file.
+One list, one confirmation, in plain text. If nothing is missing or out of date, say so and stop.
+
+Show each section that differs from its template as a diff, one per section, and let the user accept
+each one separately. Say that you cannot tell which side changed: a line may be the user's own edit, and
+taking the template's text would undo it.
 
 ## 3. Install
 
