@@ -11,8 +11,9 @@ disable-model-invocation: true
 
 # Set up the ai-sdlc flow
 
-Look at the project, show what you would change, wait for a yes, then act. Add only what is missing:
-running this twice must change nothing the second time.
+Look at the project, show what you would change, wait for a yes, then act. Add what is missing, and offer
+to bring up to date what an earlier version of the flow installed or wrote; leave the project's own text
+alone. Running this twice with the same answers must change nothing the second time.
 
 The project files come from `templates/`: [CLAUDE.template.md](./templates/CLAUDE.template.md),
 [CODING_STANDARDS.template.md](./templates/CODING_STANDARDS.template.md),
@@ -47,7 +48,8 @@ npx -y skills@latest add "mattpocock/skills#49dd158d1076134a641b33efb03594653677
 npx -y skills@latest add greav/ai-sdlc -y -a claude-code -s <name> …
 ```
 
-When the user asks to install ai-sdlc from a local folder, put its path in place of `greav/ai-sdlc`.
+When the user asks to install ai-sdlc from a local folder, or `skills-lock.json` already gives one as the
+source of `ship`, put its path in place of `greav/ai-sdlc`.
 
 ## 1. Look
 
@@ -59,6 +61,16 @@ Read what is there; assume nothing.
   `ref`. A skill from mattpocock/skills is current only when its `ref` is the pinned commit; one with no
   `ref` or another one is not. Note which of the skills above are missing or not current, and whether
   `.claude/skills/` exists at all.
+- **The ai-sdlc source.** An ai-sdlc skill comes from `greav/ai-sdlc` or from a local folder: for the
+  project's skills `skills-lock.json` says which, for this one the `source` that
+  `npx -y skills@latest list -g --json` gives for `setup-ai-sdlc`. Make a shallow clone of the repository
+  into a temporary folder outside the project; read a local folder as it is.
+  - Compare this skill's own folder with `skills/core/setup-ai-sdlc/` in its source. If they differ, stop
+    before anything else: this copy is out of date, and comparing the project with it would propose
+    going back. Tell the user to update it — `npx skills update -g`, or its `add` command again when it
+    was installed from a folder — and to run `/setup-ai-sdlc` again.
+  - Compare each installed ai-sdlc skill with its folder in its source, under `skills/core/` or
+    `skills/guidance/`. One that differs is not current.
 - **A project copy of `setup-ai-sdlc`.** If `.claude/skills/setup-ai-sdlc/` exists, it is a leftover
   from before this skill was installed globally.
 - **Matt's setup.** It has run when `docs/agents/issue-tracker.md` exists.
@@ -76,12 +88,26 @@ Read what is there; assume nothing.
   `## Feature plan` section and a `## Backlog` section.
 - **`.scratch/`.** Is it ignored by git. Check a path inside it, `git check-ignore -q .scratch/x`: the
   pattern `.scratch/` does not match the bare name while the folder does not exist yet.
+- **What an earlier run wrote.** Render each template part the way step 5 would write it for this
+  project, and compare it with the section under the same heading in the project:
+  - in the agent instructions: `## Branches`, `## Backlog`, `## Guidance skills`, and in a Python project
+    `## Tooling` and the sections of `python-ports-and-adapters.md`;
+  - in `CODING_STANDARDS.md`: the paragraph above `## Where the rules are`;
+  - in `docs/agents/issue-tracker.md`: `## Feature plan` and `## Backlog`.
+
+  A section that is the template's text with lines changed, added or removed was written by an earlier
+  version of the flow, or edited since: note the difference. A section that says something else under
+  the same heading is the project's own rule: leave it. Never compare a placeholder section.
 
 ## 2. Propose
 
 Say what you found, then list each change you would make: the skills to install, the project copy of
 `setup-ai-sdlc` to remove, and — when Matt's setup has run — the text you would write into each file.
-One list, one confirmation. If nothing is missing, say so and stop.
+One list, one confirmation. If nothing is missing or out of date, say so and stop.
+
+Show each section that differs from its template as a diff, one per section, and let the user accept
+each one separately. Say that you cannot tell which side changed: a line may be the user's own edit, and
+taking the template's text would undo it.
 
 Ask, in the same message, only what step 1 left open:
 
@@ -138,6 +164,11 @@ Write no project files in this run: what they say depends on what Matt's setup w
   uses another tool keeps it; add nothing.
 - Never add a section named `## Agent skills`: `/setup-matt-pocock-skills` owns it and rewrites it.
 
+**Sections an earlier version wrote**
+
+- Replace each section the user accepted with the template's text, as rendered for this project, in
+  place. Leave the sections the user declined as they are.
+
 **`CODING_STANDARDS.md`**
 
 - Missing: create it from `templates/CODING_STANDARDS.template.md`. Point at every file that holds the
@@ -158,7 +189,7 @@ Write no project files in this run: what they say depends on what Matt's setup w
 
 ## 6. Report
 
-List what was installed and written. Then name what only the user can fix:
+List what was installed, written and updated. Then name what only the user can fix:
 
 - placeholders left in a `CLAUDE.md` created from the template;
 - instructions that do not name the checks required before a change is done — `/ship` runs what they

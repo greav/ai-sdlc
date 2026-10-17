@@ -485,14 +485,20 @@ worktrees do not get the skills, and `git clean -x` removes them.
 ### Updating the skills later
 
 ```
-npx skills update -g    # /setup-ai-sdlc
-npx skills update -p    # in a project: the skills from this repository
+npx skills update -g    # /setup-ai-sdlc itself, first
+/setup-ai-sdlc          # then in each project
 ```
 
+- In a project, `/setup-ai-sdlc` compares the skills from this repository with the repository and
+  reinstalls the ones that changed. It also shows how each section it wrote earlier differs from the
+  current template, as a diff per section, and replaces only the ones you accept. It cannot tell your own
+  edit of a line from a change in the flow, so read each diff before you accept it.
+- If `/setup-ai-sdlc` itself is older than this repository, it says so and stops: update it first.
 - The skills from mattpocock/skills stay at their pinned commit; `update` does not move them.
-- A skill installed from a local folder is not updated: run its `add` command again.
-- Run `/setup-ai-sdlc` again after re-running `/setup-matt-pocock-skills` or when the project needs
-  another guidance skill. It adds only what is missing.
+- `npx skills update -g` does not update a skill installed from a local folder: run its `add` command
+  again.
+- Run `/setup-ai-sdlc` again also after re-running `/setup-matt-pocock-skills` or when the project needs
+  another guidance skill.
 
 ### Moving to a new version of mattpocock/skills
 
