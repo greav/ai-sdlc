@@ -15,7 +15,8 @@ leave out:
 | finishing a feature                          | `/ship` and `/cleanup`        |
 | making the reviewer check the project's rules | `CODING_STANDARDS.md`         |
 
-Checked against mattpocock/skills as of 2026-10-10 (1.3.1 plus the changes queued after it).
+Checked against mattpocock/skills as of 2026-10-10 (1.3.1 plus the changes queued after it). `/setup-ai-sdlc`
+installs exactly that version.
 
 ## The flow
 
@@ -334,19 +335,34 @@ context, and a real trade-off. The `domain-modeling` skill writes it, in its own
 
 ## Setting up a project
 
-Four steps, once per project.
-
-### Step 1. Install the skills from mattpocock/skills
+### Once per machine
 
 ```
-npx skills@latest add mattpocock/skills
+npx skills@latest add greav/ai-sdlc -g -a claude-code --skill setup-ai-sdlc
 ```
 
-Install into the project, not globally. The installer asks which skills to take; pick these:
+This installs one skill, `/setup-ai-sdlc`, for every project on the machine. It installs everything else
+itself.
+
+### In each project
+
+1. `/setup-ai-sdlc`. It looks at the project, asks what it cannot tell, and after you confirm installs the
+   flow's skills into the project. Then it stops and tells you the next step.
+1. If the project had no `.claude/skills/` folder before, restart Claude Code: exit and run `claude -c`.
+   A session does not see skills in a folder created after it started.
+1. `/setup-matt-pocock-skills`. When it asks where issues live, choose **Local markdown**. It writes
+   `docs/agents/` and adds an `## Agent skills` block to the project's instructions: `CLAUDE.md`, or
+   `AGENTS.md` when `CLAUDE.md` only imports it.
+1. `/setup-ai-sdlc` again. It shows what it would write into the project and writes after you confirm.
+
+### The skills it installs
+
+From mattpocock/skills, at the version the flow was checked against. The commit is in
+`skills/core/setup-ai-sdlc/SKILL.md`, and `npx skills update` leaves these skills at it.
 
 | Skill                           | Who runs it           | What it is for                                              |
 | ------------------------------- | --------------------- | ----------------------------------------------------------- |
-| `setup-matt-pocock-skills`      | you, once             | configures the project for the other skills (step 3)        |
+| `setup-matt-pocock-skills`      | you, once             | configures the project for the other skills                 |
 | `wayfinder`                     | you, before Shape     | plans work too big for one session as a map of questions    |
 | `grill-with-docs`               | you, in Shape         | the interview that settles what to build                    |
 | `to-spec`                       | you, in Shape         | writes `spec.md` from the interview or from the map         |
@@ -368,39 +384,14 @@ Install into the project, not globally. The installer asks which skills to take;
 | `pr`                            | another skill         | shapes the PR description when `/ship` opens the PR         |
 | `writing-for-agents`            | another skill         | writing style for agent instructions; `retro` calls it      |
 
-Do not skip the ones another skill calls: the skills you type do nothing without them.
+From this repository:
 
-### Step 2. Install the skills from this repository
+| Skills                                | When                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| `ship`, `cleanup`                     | always                                                                       |
+| `sql-persistence`, `http-integration` | only in a project built as ports and adapters, and only the ones its code needs |
 
-The same installer takes this repository as a source, in either of two ways:
-
-```
-npx skills@latest add <path to this repository> --skill setup-ai-sdlc --skill ship --skill cleanup    # from a local folder
-npx skills@latest add <owner>/ai-sdlc --skill setup-ai-sdlc --skill ship --skill cleanup              # from its git repository
-```
-
-| Skills                                | Which to install                                                                                                 |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `setup-ai-sdlc`, `ship`, `cleanup`    | always                                                                                                           |
-| `sql-persistence`, `http-integration` | only in a project built as ports and adapters, and only the ones its code needs: add `--skill <name>` for each |
-
-### Step 3. Run the setup skill from mattpocock/skills
-
-```
-/setup-matt-pocock-skills
-```
-
-When it asks where issues live, choose **Local markdown**. It writes `docs/agents/` and adds an
-`## Agent skills` block to the project's instructions: `CLAUDE.md`, or `AGENTS.md` when `CLAUDE.md` only
-imports it.
-
-### Step 4. Run the setup skill from this repository
-
-```
-/setup-ai-sdlc
-```
-
-It looks at the project, shows what it would change, and writes only after you confirm:
+### What it writes into the project
 
 | What it sets up                | In a new project                    | In a project that already has instructions            |
 | ------------------------------ | ----------------------------------- | ----------------------------------------------------- |
@@ -466,17 +457,26 @@ worktrees do not get the skills, and `git clean -x` removes them.
 ### Updating the skills later
 
 ```
-npx skills update
+npx skills update -g    # /setup-ai-sdlc
+npx skills update -p    # in a project: the skills from this repository
 ```
 
-- This updates everything installed from a git repository. For skills installed from a local folder, run
-  the `add` command from step 2 again.
-- Run `/setup-ai-sdlc` again after re-running `/setup-matt-pocock-skills` or installing another guidance
-  skill. It adds only what is missing.
-- After updating mattpocock/skills, check that three things still hold: tickets live in
-  `.scratch/<slug>/`, `/implement` neither creates a branch nor closes a ticket, and `/code-review` finds
-  the spec in `.scratch/` and the standards in `CODING_STANDARDS.md`. Then update the date at the top of
-  this file.
+- The skills from mattpocock/skills stay at their pinned commit; `update` does not move them.
+- A skill installed from a local folder is not updated: run its `add` command again.
+- Run `/setup-ai-sdlc` again after re-running `/setup-matt-pocock-skills` or when the project needs
+  another guidance skill. It adds only what is missing.
+
+### Moving to a new version of mattpocock/skills
+
+1. Check that three things still hold in the new version: tickets live in `.scratch/<slug>/`,
+   `/implement` neither creates a branch nor closes a ticket, and `/code-review` finds the spec in
+   `.scratch/` and the standards in `CODING_STANDARDS.md`. Prefer a release tag to a commit.
+1. Put the new tag or commit in `skills/core/setup-ai-sdlc/SKILL.md`, in both install commands and the
+   heading above them, and update the date at the top of this file. Commit and push.
+1. `npx skills update -g`.
+1. In each project: `/setup-ai-sdlc`. It reinstalls the skills that are not at the new version. If the
+   release notes ask to re-run `/setup-matt-pocock-skills`, do it, then run `/setup-ai-sdlc` once more:
+   the re-run drops the `PLAN.md` format, and this puts it back.
 
 ## Splitting a project's instructions
 
@@ -564,7 +564,7 @@ Skills come in two kinds, one folder each, split the way mattpocock/skills split
 
 - **Core skills** (`skills/core/`) are steps of the flow itself — `setup-ai-sdlc`, `ship`, `cleanup`. Each is a workflow
   the user starts; they carry `disable-model-invocation: true`, so only typing them runs them. Every
-  project using the flow gets all of them.
+  project using the flow gets `ship` and `cleanup`; `setup-ai-sdlc` is installed once per machine.
 - **Guidance skills** (`skills/guidance/`) are rules for a kind of code — `sql-persistence`,
   `http-integration`. The agent loads them itself when the code fits; they hold no workflow, because the
   code they govern is written inside `/implement`'s. A project gets the ones its code needs. Both assume
@@ -601,8 +601,9 @@ Rules that belong to one project stay in that project: see "Splitting a project'
 1. Add a line for the skill to both templates in `skills/core/setup-ai-sdlc/templates/`: the Guidance
    skills section of `CLAUDE.template.md` and the pointer list of `CODING_STANDARDS.template.md`. The
    first is how the agent writing code finds the skill, the second is how the reviewer does.
-1. In each project that needs it: install it with `npx skills add … --skill <name>`, then run
-   `/setup-ai-sdlc` again.
+1. Add it to the ai-sdlc list in `skills/core/setup-ai-sdlc/SKILL.md`, with the kind of project that
+   needs it.
+1. In each project that needs it: run `/setup-ai-sdlc` again. It installs the skill and adds its lines.
 
 ### Practices
 
