@@ -13,6 +13,12 @@ few lowercase words joined by hyphens, in the glossary's terms. When the work ha
 the slug is that folder's name. A single ticket may be built on a short-lived branch of its own, which is
 merged into the feature's branch and then deleted. Never commit feature work to the default branch.
 
+## Backlog
+
+Work found along the way that the current plan does not cover — an idea, a bug, a task — is neither done
+on the side nor left in the chat: propose it as an item of `.scratch/backlog/`, and write it once the user
+agrees. The format and the rules are in the `## Backlog` section of `docs/agents/issue-tracker.md`.
+
 ## Guidance skills
 
 Invoke the matching skill before writing or changing such code. The reviewer checks the same rules through

@@ -2,10 +2,10 @@
 name: setup-ai-sdlc
 description: >-
   Set up a project for the ai-sdlc flow, or bring it up to date: install the flow's skills from
-  mattpocock/skills, at the version the flow was checked against, and from ai-sdlc; then add the branch
-  rule and the guidance-skill pointers to the agent instructions, create CODING_STANDARDS.md for the
-  reviewer, add the PLAN.md format to the issue-tracker doc and ignore `.scratch/`. Installed once per
-  machine; run it in a project as often as needed.
+  mattpocock/skills, at the version the flow was checked against, and from ai-sdlc; then add the branch,
+  backlog and guidance-skill rules to the agent instructions, create CODING_STANDARDS.md for the
+  reviewer, add the PLAN.md and backlog formats to the issue-tracker doc and ignore `.scratch/`. Installed
+  once per machine; run it in a project as often as needed.
 disable-model-invocation: true
 ---
 
@@ -16,7 +16,8 @@ running this twice must change nothing the second time.
 
 The project files come from `templates/`: [CLAUDE.template.md](./templates/CLAUDE.template.md),
 [CODING_STANDARDS.template.md](./templates/CODING_STANDARDS.template.md),
-[plan-format.md](./templates/plan-format.md) and, for a Python project only,
+[plan-format.md](./templates/plan-format.md), [backlog-format.md](./templates/backlog-format.md) and, for
+a Python project only,
 [python.md](./templates/python.md) and
 [python-ports-and-adapters.md](./templates/python-ports-and-adapters.md).
 
@@ -62,7 +63,8 @@ Read what is there; assume nothing.
   from before this skill was installed globally.
 - **Matt's setup.** It has run when `docs/agents/issue-tracker.md` exists.
 - **Agent instructions.** `CLAUDE.md` and `AGENTS.md` at the project root, and any file either one
-  imports. Do they say how branches are named? Do they name the checks required before a change is done?
+  imports. Do they say how branches are named, and where work found outside the plan goes? Do they name
+  the checks required before a change is done?
 - **The language.** Is this a Python project: a `pyproject.toml`, Python sources, or instructions that say
   so. If it is, which tool installs its dependencies and runs its commands, by its lock file or by what
   the instructions name. Is it built as ports and adapters, and does its code talk to a database or call
@@ -71,7 +73,7 @@ Read what is there; assume nothing.
   or contract-testing doc, and anything in `.claude/rules/`.
 - **`CODING_STANDARDS.md`** at the project root.
 - **`docs/agents/issue-tracker.md`.** Is the tracker local markdown, does it already have a
-  `## Feature plan` section.
+  `## Feature plan` section and a `## Backlog` section.
 - **`.scratch/`.** Is it ignored by git. Check a path inside it, `git check-ignore -q .scratch/x`: the
   pattern `.scratch/` does not match the bare name while the folder does not exist yet.
 
@@ -87,7 +89,8 @@ Ask, in the same message, only what step 1 left open:
 - Is it built as ports and adapters? Ask when `CLAUDE.md` is to be created from the template and the
   project is Python, or when it decides whether to install a guidance skill.
 - Which guidance skills to install, when the code does not show whether it talks to a database or calls
-  a remote API.
+  a remote API. Ask only on the run that first installs the flow's skills: on a later run, propose a
+  guidance skill only when the code shows the need or the user asks for it.
 
 ## 3. Install
 
@@ -122,12 +125,14 @@ Write no project files in this run: what they say depends on what Matt's setup w
   `templates/python-ports-and-adapters.md` in its place. In any other project leave the placeholder: do
   not invent a structure for the user.
 - One exists: edit the file that holds the rules. That is `CLAUDE.md`, unless `CLAUDE.md` only imports
-  another file; then it is the imported file. Add only the `## Branches` and `## Guidance skills`
-  sections of the template, and only where the project lacks them. Apart from the Python section below,
+  another file; then it is the imported file. Add only the `## Branches`, `## Backlog` and
+  `## Guidance skills` sections of the template, and only where the project lacks them. Apart from the Python section below,
   leave everything else as it is.
 - The project already names its branches some other way — in its instructions or in a skill of its own:
   keep its rule. Add a `## Branches` section only if nothing says that a branch is `<type>/<slug>` and
   that the slug is the name of the work's folder in `.scratch/`; then add just that.
+- The project already says where work found outside the plan goes: keep its rule. Add the `## Backlog`
+  section only if nothing does.
 - A Python project whose instructions name no tool for installing and running: add the sections of
   `templates/python.md`, before `## Branches` in a file created from the template. A project that already
   uses another tool keeps it; add nothing.
@@ -145,6 +150,7 @@ Write no project files in this run: what they say depends on what Matt's setup w
 - The tracker is not local markdown: write nothing here. Tell the user that `PLAN.md` and the `.scratch/`
   layout assume the local tracker.
 - No `## Feature plan` section: append `templates/plan-format.md` to the end of the file.
+- No `## Backlog` section: append `templates/backlog-format.md` to the end of the file.
 
 **`.gitignore`**
 

@@ -2,8 +2,8 @@
 name: cleanup
 description: >-
   Remove what a merged piece of work left behind: switch to the default branch, update it, delete the
-  feature branch and its `.scratch/<slug>/` folder if it has one. Refuses while the PR is open, closed
-  unmerged, or missing. Run after the merge of a PR opened by `/ship`.
+  feature branch, its `.scratch/<slug>/` folder if it has one, and the backlog items it finished. Refuses
+  while the PR is open, closed unmerged, or missing. Run after the merge of a PR opened by `/ship`.
 disable-model-invocation: true
 ---
 
@@ -36,11 +36,16 @@ on GitHub, a merge request on GitLab. Use the command-line tool for the service 
 6. **See whether anything else still reads the folder.** Search the rest of `.scratch/` for the path
    `.scratch/<slug>/`: a handoff or another feature's plan may point at this spec or plan instead of
    repeating it. Name every file that does, and say that its pointers will break.
-1. **Show exactly what will be removed** — the local branch, the remote branch if it still exists, and the
-   `.scratch/<slug>/` folder with its files if there is one — and wait for the user to confirm.
+1. **Find the backlog items this work took on**: the rows of `.scratch/backlog/BACKLOG.md` whose
+   `Taken by` is the slug. Ask about each whether this work finished it.
+1. **Show exactly what will be removed** — the local branch, the remote branch if it still exists, the
+   `.scratch/<slug>/` folder with its files if there is one, and the backlog items the user called
+   finished — and wait for the user to confirm.
 1. **Switch to the default branch and update it** with a fast-forward-only pull.
-1. **Delete `.scratch/<slug>/` if it exists, and nothing else in `.scratch/`.** Other folders belong to
-   other features.
+1. **Delete `.scratch/<slug>/` if it exists, and nothing else in `.scratch/` but the next step's backlog
+   items.** Other folders belong to other features.
+1. **Settle the backlog items from step 7.** Delete each finished one, its file and its row. Set
+   `Taken by` back to `—` for the others; they wait for the next piece of work.
 1. **Delete the local branch by force** once step 4 has passed: a squash merge leaves its commits
    unreachable from the default branch, so a safe delete always refuses.
 1. **Delete the remote branch only if it still exists**, then prune remote-tracking references.

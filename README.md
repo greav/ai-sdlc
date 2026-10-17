@@ -3,17 +3,18 @@
 How I build a feature with an AI agent, from "I want X" to a merged PR. Two parts:
 
 - **The flow** — which commands to run, in which order, in which session.
-- **The kit** — skills to install into a project, one of which writes the project's starting files, and
-  practices to read before a decision.
+- **The kit** — skills for a project, one of which installs the rest and writes the project's starting
+  files, and practices to read before a decision.
 
-The flow runs on [mattpocock/skills](https://github.com/mattpocock/skills) and adds three things they
-leave out:
+The flow runs on [mattpocock/skills](https://github.com/mattpocock/skills) and adds what they leave out:
 
-| Gap                                          | What fills it                 |
-| -------------------------------------------- | ----------------------------- |
-| tracking progress from session to session    | `PLAN.md`                     |
-| finishing a feature                          | `/ship` and `/cleanup`        |
-| making the reviewer check the project's rules | `CODING_STANDARDS.md`         |
+| Gap                                                  | What fills it          |
+| ---------------------------------------------------- | ---------------------- |
+| setting a project up with a checked set of skills    | `/setup-ai-sdlc`       |
+| tracking progress from session to session            | `PLAN.md`              |
+| keeping work found during a feature for later        | `.scratch/backlog/`    |
+| making the reviewer check the project's rules        | `CODING_STANDARDS.md`  |
+| finishing a feature                                  | `/ship` and `/cleanup` |
 
 Checked against mattpocock/skills as of 2026-10-10 (1.3.1 plus the changes queued after it). `/setup-ai-sdlc`
 installs exactly that version.
@@ -169,9 +170,9 @@ I just implemented @.scratch/<slug>/PLAN.md. One last change I need: … Note it
 **Stage 5 — Finish.**
 
 ```
-/ship          checks everything, updates the glossary and ADRs, pushes, opens the PR
+/ship          checks everything, updates the glossary, ADRs and backlog, pushes, opens the PR
 <squash-merge the PR>
-/cleanup       deletes .scratch/<slug>/ and the branch
+/cleanup       deletes .scratch/<slug>/, the branch and the backlog items the work finished
 ```
 
 After `/implement-spec`, merge with a merge commit instead of a squash. The branch holds one merge per
@@ -319,16 +320,39 @@ a test, or when `/retro` keeps pointing at the same part of the code.
   context and the glossary's terms. Do it before you answer a question you did not understand: an answer
   given on a guess becomes a decision.
 
-### 9. What lives where, and for how long
+### 9. Work for later
 
-| Lives as long as | Files                                                                          | Where                              |
-| ---------------- | ------------------------------------------------------------------------------ | ---------------------------------- |
-| the feature      | `spec.md`, `PLAN.md`, tickets                                                  | `.scratch/<slug>/`, ignored by git |
-| the project      | `CLAUDE.md`, `CODING_STANDARDS.md`, `GLOSSARY.md`, `docs/adr/`, `docs/agents/` | the project's git                  |
-| this repository  | skills, practices                                                              | here                               |
+An idea, a bug or a task that comes up during a feature but is not in its plan goes to the backlog, not
+into the current branch.
+
+```
+.scratch/backlog/BACKLOG.md    the list, in your order: the top row is the next to take on
+.scratch/backlog/<slug>.md     one item: what, where it came from, what blocks it, when it is done
+```
+
+- **Adding an item.** Say "put it in the backlog". The agent also offers it itself when it finds such work:
+  `CLAUDE.md` tells it to.
+- **Choosing what is next.** Move the rows of `BACKLOG.md`, by hand or by asking the agent.
+- **Taking an item on.** Start its route from the file, for example
+  `/grill-with-docs @.scratch/backlog/<slug>.md`. When you ask the agent to create the branch, ask it to
+  mark the item as taken too.
+- **After the merge.** `/cleanup` asks whether the work finished each item it took on, and deletes the
+  finished ones.
+
+Like the rest of `.scratch/`, the backlog is ignored by git: it lives only on this machine.
+
+### 10. What lives where, and for how long
+
+| Lives as long as | Files                                                                          | Where                               |
+| ---------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| the feature      | `spec.md`, `PLAN.md`, tickets                                                  | `.scratch/<slug>/`, ignored by git  |
+| until taken on   | backlog items, `BACKLOG.md`                                                    | `.scratch/backlog/`, ignored by git |
+| the project      | `CLAUDE.md`, `CODING_STANDARDS.md`, `GLOSSARY.md`, `docs/adr/`, `docs/agents/` | the project's git                   |
+| this repository  | skills, practices                                                              | here                                |
 
 Before a feature's files are deleted, anything still worth knowing moves up a row: a new term goes to
-`GLOSSARY.md`, a decision that must not be undone goes to an ADR. `/ship` checks this for you.
+`GLOSSARY.md`, a decision that must not be undone goes to an ADR, work left for later goes to the
+backlog. `/ship` checks this for you.
 
 An ADR is one short paragraph, written only for a decision that is hard to reverse, surprising without
 context, and a real trade-off. The `domain-modeling` skill writes it, in its own format.
@@ -393,12 +417,12 @@ From this repository:
 
 ### What it writes into the project
 
-| What it sets up                | In a new project                    | In a project that already has instructions            |
-| ------------------------------ | ----------------------------------- | ----------------------------------------------------- |
-| agent instructions             | creates `CLAUDE.md` from a template | adds only the branch rule and the guidance-skill lines |
-| `CODING_STANDARDS.md`          | creates it                          | creates it, pointing at the project's own rules       |
-| `docs/agents/issue-tracker.md` | appends the `PLAN.md` format        | the same                                              |
-| `.gitignore`                   | adds `.scratch/`                    | the same                                              |
+| What it sets up                | In a new project                          | In a project that already has instructions                          |
+| ------------------------------ | ----------------------------------------- | ------------------------------------------------------------------- |
+| agent instructions             | creates `CLAUDE.md` from a template       | adds only the branch and backlog rules and the guidance-skill lines |
+| `CODING_STANDARDS.md`          | creates it                                | creates it, pointing at the project's own rules                     |
+| `docs/agents/issue-tracker.md` | appends the `PLAN.md` and backlog formats | the same                                                            |
+| `.gitignore`                   | adds `.scratch/`                          | the same                                                            |
 
 Afterwards it tells you what is left for you: placeholders to fill in a new `CLAUDE.md`, or instructions
 that do not name the checks required before a change is done (`/ship` runs what they name).
@@ -421,7 +445,7 @@ CODING_STANDARDS.md              pointers for the reviewer
 .gitignore                       contains .scratch/
 skills-lock.json                 written by the installer: which skills are installed, and from where
 .claude/skills/                  the skills from mattpocock/skills and from here, your guidance skills
-docs/agents/issue-tracker.md     how tickets are tracked, with the PLAN.md format at the end
+docs/agents/issue-tracker.md     how tickets are tracked, with the PLAN.md and backlog formats at the end
 docs/agents/domain.md            how the skills use the glossary and ADRs
 ```
 
@@ -444,8 +468,8 @@ Code reads skills from `.claude/skills/` whether git tracks them or not.
    If the project has shared skills of its own, list the flow's skill folders one by one instead of the
    whole `.claude/skills/`.
 1. **Move what the two setup skills added to the shared instructions into `CLAUDE.local.md`**: the
-   `## Agent skills` block, the branch rule, the guidance-skill lines. Claude Code loads that file next to
-   `CLAUDE.md` and keeps it out of git. There is no `AGENTS.local.md`.
+   `## Agent skills` block, the branch and backlog rules, the guidance-skill lines. Claude Code loads that
+   file next to `CLAUDE.md` and keeps it out of git. There is no `AGENTS.local.md`.
 1. **If the project has `AGENTS.md` and no `CLAUDE.md`, start `CLAUDE.local.md` with the line
    `@AGENTS.md`.** Otherwise Claude Code stops reading `AGENTS.md` once `CLAUDE.local.md` exists.
 
@@ -476,7 +500,7 @@ npx skills update -p    # in a project: the skills from this repository
 1. `npx skills update -g`.
 1. In each project: `/setup-ai-sdlc`. It reinstalls the skills that are not at the new version. If the
    release notes ask to re-run `/setup-matt-pocock-skills`, do it, then run `/setup-ai-sdlc` once more:
-   the re-run drops the `PLAN.md` format, and this puts it back.
+   the re-run drops the `PLAN.md` and backlog formats, and this puts them back.
 
 ## Splitting a project's instructions
 

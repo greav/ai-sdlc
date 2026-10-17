@@ -3,7 +3,8 @@ name: ship
 description: >-
   Finish a piece of work and put it up for merge: confirm the checks pass, and — when the work has a
   `.scratch/<slug>/` folder — that every ticket in PLAN.md is done and that what should outlive it is in
-  GLOSSARY.md and docs/adr/; then push the branch and open a pull request. Run once, after the review.
+  GLOSSARY.md, docs/adr/ and the backlog; then push the branch and open a pull request. Run once, after the
+  review.
 disable-model-invocation: true
 ---
 
@@ -42,12 +43,20 @@ on GitHub, a merge request on GitLab. Use the command-line tool for the service 
    expect few. Propose them, then write only what the user accepts, in the `domain-modeling` skill's
    formats. Commit the additions on their own, before pushing, so they are merged together with the
    feature.
+1. ***With a plan:* move work left for later to the backlog.** Read the Notes in PLAN.md and the ticket
+   files for work kept out of this feature: an idea set aside, a bug found and not fixed, a check the user
+   dropped, a change deferred. Each one `.scratch/backlog/` does not already hold is a candidate: `/cleanup`
+   deletes `.scratch/<slug>/` after the merge, and with it whatever was not moved out. Propose them, then
+   write only what the user accepts, in the format of the `## Backlog` section of
+   `docs/agents/issue-tracker.md`. Nothing to commit: `.scratch/` is ignored by git.
+1. **The backlog index matches its files.** If `.scratch/backlog/` exists, name every item file without a
+   row in `BACKLOG.md` and every row without a file, and fix them with the user.
 1. **Ask whether anything is worth keeping beyond this project.** Name the candidate and stop there; it is
    the user's to carry into their practices, not yours to write outside the repository.
 
 ## Open the pull request
 
-8. **Say which branch is about to be pushed and what it contains** — its name and its commits since the
+10. **Say which branch is about to be pushed and what it contains** — its name and its commits since the
    default branch. Without a plan the branch name is the only thing identifying the work, so this is where
    a wrong branch gets caught.
 1. **Push the branch with upstream tracking.** Never force-push.
