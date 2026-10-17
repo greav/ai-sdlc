@@ -86,7 +86,8 @@ cannot tell you what an API allows or whether an approach works.
   list of tickets. These are your only checkpoints, so read them carefully.
 - Put only a space after a command's name. With a comma there, as in `/to-tickets, then…`, the command is
   not recognised and the skill does not load.
-- You get `GLOSSARY.md` and ADRs in git, and three kinds of file in `.scratch/<slug>/`:
+- You get `GLOSSARY.md` and ADRs — in git, unless the flow is personal in this project — and three kinds
+  of file in `.scratch/<slug>/`:
 
 ```
 spec.md              what is being built, as a whole — changed only after a new interview
@@ -130,7 +131,8 @@ Final review: fix plain defects only, and list the findings that need my decisio
   block the other when you approve the list of tickets.
 - The ticket files are deleted at the end, so a ticket number in a commit message would point at nothing.
 - Commit the project's instructions, glossary and ADRs before the run. A subagent's working copy holds
-  only committed files.
+  only committed files. When the flow is personal, `.worktreeinclude` copies the glossary and ADRs in
+  instead.
 - Without the last line it fixes every review finding itself, including the ones that are yours to decide.
 
 **Stage 3 — Review.** Check the whole feature. A new session.
@@ -428,7 +430,7 @@ From this repository:
 | agent instructions             | creates `CLAUDE.md` from a template       | adds only the branch and backlog rules and the guidance-skill lines |
 | `CODING_STANDARDS.md`          | creates it                                | creates it, pointing at the project's own rules                     |
 | `docs/agents/issue-tracker.md` | appends the `PLAN.md` and backlog formats | the same                                                            |
-| `.gitignore`                   | adds `.scratch/`                          | the same                                                            |
+| `.gitignore`                   | adds `.scratch/`                          | the same; when the flow is personal, `.git/info/exclude` instead    |
 
 Afterwards it tells you what is left for you: placeholders to fill in a new `CLAUDE.md`, or instructions
 that do not name the checks required before a change is done (`/ship` runs what they name).
@@ -455,34 +457,35 @@ docs/agents/issue-tracker.md     how tickets are tracked, with the PLAN.md and b
 docs/agents/domain.md            how the skills use the glossary and ADRs
 ```
 
-### Keeping the flow to yourself in a shared project
+### Keeping the flow to yourself
 
-When others work in the project and the flow is only yours, keep its files on disk and out of git. Claude
-Code reads skills from `.claude/skills/` whether git tracks them or not.
+In a project where you may not commit the flow's files — a team that does not use the flow, a repository
+that is not yours — answer **personal** when `/setup-ai-sdlc` asks whether the flow is shared. Claude
+Code reads skills and instructions from disk whether git tracks them or not, so the flow works the same;
+git just never sees it.
 
-1. **Hide the files from git through `.git/info/exclude`, not `.gitignore`.** It works the same way, but
-   it is not committed, so nobody else sees it:
+- **Files are hidden through `.git/info/exclude`, not `.gitignore`.** It works the same way, but it is not
+  committed, so nobody else sees it. The skills, `skills-lock.json`, `.scratch/`, `docs/agents/`,
+  `CODING_STANDARDS.md`, `GLOSSARY.md` and `docs/adr/` go there. A file the team has already committed
+  stays shared. Claude Code asks your permission before writing there: it treats every file in `.git/`
+  as sensitive.
+- **The rules go into `CLAUDE.local.md`**, which Claude Code loads next to `CLAUDE.md` and keeps out of
+  git: the branch and backlog rules, the guidance-skill lines, and the `## Agent skills` block, which the
+  setup moves out of the shared file after `/setup-matt-pocock-skills` writes it there. There is no
+  `AGENTS.local.md`: with only `AGENTS.md`, `CLAUDE.local.md` starts with the line `@AGENTS.md`.
+- **`.worktreeinclude` copies the glossary, the ADRs, `docs/agents/` and `CODING_STANDARDS.md`** into the
+  working copy of each subagent `/implement-spec` starts. The rules and the skills reach a subagent
+  without it.
+- **`/ship` writes the glossary and ADRs but does not commit them.**
 
-   ```
-   .claude/skills/
-   skills-lock.json
-   .scratch/
-   docs/agents/
-   CODING_STANDARDS.md
-   ```
+What this costs:
 
-   If the project has shared skills of its own, list the flow's skill folders one by one instead of the
-   whole `.claude/skills/`.
-1. **Move what the two setup skills added to the shared instructions into `CLAUDE.local.md`**: the
-   `## Agent skills` block, the branch and backlog rules, the guidance-skill lines. Claude Code loads that
-   file next to `CLAUDE.md` and keeps it out of git. There is no `AGENTS.local.md`.
-1. **If the project has `AGENTS.md` and no `CLAUDE.md`, start `CLAUDE.local.md` with the line
-   `@AGENTS.md`.** Otherwise Claude Code stops reading `AGENTS.md` once `CLAUDE.local.md` exists.
-
-`GLOSSARY.md` and `docs/adr/` describe the project, not the flow: leave them shared.
-
-What this costs: no history of the skills, a fresh clone or another machine needs the setup again, git
-worktrees do not get the skills, and `git clean -x` removes them.
+- No history of the glossary, the ADRs or the rules. A fresh clone or another machine needs the setup
+  again, and `git clean -x` removes all of it.
+- A change a subagent makes to the glossary or an ADR in its working copy is lost when its branch is
+  merged.
+- Re-running `/setup-matt-pocock-skills` writes the `## Agent skills` block into the shared file again.
+  Run `/setup-ai-sdlc` after it to move the block back.
 
 ### Updating the skills later
 

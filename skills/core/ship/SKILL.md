@@ -42,7 +42,8 @@ on GitHub, a merge request on GitLab. Use the command-line tool for the service 
    surprising without context, the result of a real trade-off. Most were captured while grilling, so
    expect few. Propose them, then write only what the user accepts, in the `domain-modeling` skill's
    formats. Commit the additions on their own, before pushing, so they are merged together with the
-   feature.
+   feature. If git ignores `GLOSSARY.md` and `docs/adr/`, the flow is personal in this project: write
+   them and commit nothing.
 1. ***With a plan:* move work left for later to the backlog.** Read the Notes in PLAN.md and the ticket
    files for work kept out of this feature: an idea set aside, a bug found and not fixed, a check the user
    dropped, a change deferred. Each one `.scratch/backlog/` does not already hold is a candidate: `/cleanup`
